@@ -317,12 +317,12 @@ install-service)
 
     echo -e "${YELLOW}[2/4] Copying keeper-ssh.sh ...${NC}";
     mkdir -p ~/.local/bin/
-    cp keeper-ssh.sh ~/.local/bin/keeper-ssh.sh;
+    cp ./keeper-ssh.sh ~/.local/bin/keeper-ssh.sh;
     chmod +x ~/.local/bin/keeper-ssh.sh
 
     echo -e "${YELLOW}[3/4] Copying keeper-ssh.service ...${NC}";
     mkdir -p ~/.config/systemd/user
-    cp keeper-ssh.service ~/.config/systemd/user/keeper-ssh.service;
+    cp ./keeper-ssh.service ~/.config/systemd/user/keeper-ssh.service;
     chmod +x ~/.config/systemd/user/keeper-ssh.service
 
     echo -e "${YELLOW}[4/4] Reloading systemd deamons ...${NC}";

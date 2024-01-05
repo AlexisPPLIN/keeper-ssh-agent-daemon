@@ -287,11 +287,11 @@ start)
         screen -dm -S keeper-ssh keeper --config=$config ssh-agent start
     fi
 
-    echo -e "${YELLOW}[3/5] Adding SSH_AUTH_SOCK to bashrc...${NC}";
-    addSshAgentSocketToBashrc
-
-    echo -e "${YELLOW}[4/5] Waiting for ssh-agent socket to open...${NC}";
+    echo -e "${YELLOW}[3/5] Waiting for ssh-agent socket to open...${NC}";
     waitForSocketToOpenOrFail
+
+    echo -e "${YELLOW}[4/5] Adding SSH_AUTH_SOCK to bashrc...${NC}";
+    addSshAgentSocketToBashrc
 
     echo -e "${YELLOW}[5/5] Populating pubkeys into ~/.ssh/keeper...${NC}";
     createSshPublicKeyFilesFromAgent

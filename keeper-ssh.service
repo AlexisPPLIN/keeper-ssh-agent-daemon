@@ -5,8 +5,8 @@ After=network-online.target
 [Service]
 Type=forking
 
-ExecStart=~/.local/bin/keeper-ssh.sh start
-ExecStop=~/.local/bin/keeper-ssh.sh stop
+ExecStart=%h/.local/bin/keeper-ssh.sh start
+ExecStop=%h/.local/bin/keeper-ssh.sh stop
 
 Restart=on-failure
 

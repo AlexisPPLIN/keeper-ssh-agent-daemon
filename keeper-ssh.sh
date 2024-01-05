@@ -265,6 +265,50 @@ stop)
 
     exit 0;
     ;;
+install-service)
+    echo -e "${YELLOW}[1/4] Checking if service is already installed ...${NC}";
+    if systemctl --user --all --type service | grep -Fq 'keeper-ssh'; then
+        echo "Stopping service";
+        systemctl --user stop keeper-ssh
+    fi
+
+    echo -e "${YELLOW}[2/4] Copying keeper-ssh.sh ...${NC}";
+    cp keeper-ssh.sh ~/.local/bin/keeper-ssh.sh;
+    chmod +x ~/.local/bin/keeper-ssh.sh
+
+    echo -e "${YELLOW}[3/4] Copying keeper-ssh.service ...${NC}";
+    cp keeper-ssh.service ~/.config/systemd/user/keeper-ssh.service;
+    chmod +x ~/.config/systemd/user/keeper-ssh.service
+
+    echo -e "${YELLOW}[4/4] Reloading systemd deamons ...${NC}";
+    systemctl --user daemon-reload
+
+    echo -e "${GREEN}Success ! Service keeper-ssh installed !${NC}";
+    echo -e "${GREEN}Use : 'systemctl --user start keeper-ssh' to start the service${NC}";
+
+    exit 0;
+    ;;
+remove-service)
+    echo -e "${YELLOW}[1/4] Checking if service is installed ...${NC}";
+    if ! systemctl --user --all --type service | grep -Fq 'keeper-ssh'; then
+        echo -e "${RED}keeper-ssh service is not installed ...${NC}";
+        exit 1;
+    fi
+
+    echo -e "${YELLOW}[2/4] Stopping and disabling keeper-ssh service ...${NC}";
+
+    systemctl --user stop keeper-ssh
+    systemctl --user disable keeper-ssh
+
+    echo -e "${YELLOW}[3/3] Removing files ...${NC}";
+
+    rm ~/.local/bin/keeper-ssh.sh
+    rm ~/.config/systemd/user/keeper-ssh.service
+
+    echo -e "${GREEN}Success ! Service keeper-ssh removed !${NC}";
+
+    exit 0;
+    ;;
 *)  
     echo "Not supported, try reading the help with the -h parameter" 
     exit 1

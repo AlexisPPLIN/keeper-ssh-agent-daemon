@@ -36,21 +36,17 @@ You can use this script without a service :
 
 ## Systemd (service)
 
-### 1. First copy the files to the service folder :
-```
-cp keeper-ssh.sh ~/.local/bin/keeper-ssh.sh \
-&& cp keeper-ssh.service ~/.config/systemd/user/keeper-ssh.service
-```
-
-### 2. Start the service :  
-`systemctl --user start keeper-ssh`
-
-### 3. Enable the service on user login :
-`systemctl --user enable keeper-ssh`
+Install service with the following command :  
+`./keeper-ssh.sh install-service`
 
 ## Check if keys are loaded
 You should open a new terminal for ssh-agent socket to be used.  
 Then run `ssh-add -l` and you should see all your ssh keys.
+
+# How to uninstall
+
+Remove service with the following command :  
+`./keeper-ssh.sh remove-service`
 
 # Usage
 

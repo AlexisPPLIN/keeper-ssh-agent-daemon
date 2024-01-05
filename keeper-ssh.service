@@ -1,0 +1,17 @@
+[Unit]
+Description=Keeper background ssh-agent
+After=network-online.target
+ 
+[Service]
+Type=forking
+
+ExecStart=~/.local/bin/keeper-ssh.sh start
+ExecStop=~/.local/bin/keeper-ssh.sh stop
+
+Restart=on-failure
+
+# Configures the time to wait before service is stopped forcefully.
+TimeoutStopSec=300
+ 
+[Install]
+WantedBy=default.target

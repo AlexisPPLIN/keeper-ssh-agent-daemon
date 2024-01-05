@@ -208,7 +208,7 @@ function isScreenStarted() {
 # Adds Keeper ssh-agent socket to .bashrc
 function addSshAgentSocketToBashrc() {
     SSH_AGENT=`ls /home/$USER/.keeper/*.ssh_agent`;
-    SSH_AUTH_SOCK=$SSH_AGENT
+    export SSH_AUTH_SOCK=$SSH_AGENT
     
     echo "export SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> ~/.bashrc
     return 0

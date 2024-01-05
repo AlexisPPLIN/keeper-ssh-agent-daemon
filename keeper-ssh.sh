@@ -36,7 +36,7 @@ function socketIsOpened() {
         return 1;
     fi;
 
-    SSH_AUTH_SOCK=$SSH_AGENT ssh-add -q -l 2>/dev/null
+    SSH_AUTH_SOCK=$SSH_AGENT ssh-add -l 2>/dev/null
     if [ $? -ne 0 ]; then
         return 1;
     fi;

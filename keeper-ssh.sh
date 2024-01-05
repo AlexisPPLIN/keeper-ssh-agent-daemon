@@ -182,6 +182,11 @@ function isLogged() {
     fi
 
     test=`timeout 10 keeper --config=$config whoami`
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error : whoami failed${NC}";
+        exit 1;
+    fi;
+
     rm $config;
 
     if echo $test | grep "User:"; then

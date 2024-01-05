@@ -15,6 +15,8 @@ See : https://github.com/Keeper-Security/Commander/issues/965
 - Auto extract public keys files (in `~/.ssh/keeper/`) for each ssh private keys in your Keeper Vault.
 - Stores keeper config file into Gnome Keyring (libsecret).
 
+
+
 # Requirements
 
 - Keeper Commander CLI : [How to install](https://docs.keeper.io/secrets-manager/commander-cli/commander-installation-setup/installation-on-linux)
@@ -31,8 +33,8 @@ See : https://github.com/Keeper-Security/Commander/issues/965
 ## Standalone
 
 You can use this script without a service :
-- Start ssh-agent : `./keeper-ssh.sh start`
-- Stop ssh-agent : `./keeper-ssh.sh stop`
+- `./keeper-ssh.sh start` : Start daemon
+- `./keeper-ssh.sh stop` : stop daemon
 
 ## Systemd (service)
 
@@ -50,6 +52,13 @@ Remove service with the following command :
 
 # Usage
 
+## Unattended login
+
+If you start the deamon and no user is logged, it will open a prompt.  
+But if you love unattended install like me, you can use the login command before starting the deamon.
+
+`./keeper-ssh.sh login <email> <password> <server>`
+
 ## Update keys on vault update
 
 When you add or remove keys from your vault, you need to re-run the script / restart the service.
@@ -62,7 +71,7 @@ When you add or remove keys from your vault, you need to re-run the script / res
 For now this script only support `email-send` 2FA.  
 On first login you should recieve an email, click `Approve Device and Location`.
 
-One workaround, is to login manually using `keeper login` and then run the `keeper-ssh` script.
+One workaround, is to login manually using `Unattended login (see above)` and then run the `keeper-ssh` script.
 
 ## Use specific key for ssh host
 

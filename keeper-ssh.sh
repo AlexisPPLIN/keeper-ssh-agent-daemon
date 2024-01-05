@@ -58,32 +58,35 @@ TIME
     fi;
 }
 
-# Use zenity to ask user his keeper credentials
-# Then save it into gnome keychain
-function askForPassword() {
-    FORM=`zenity --forms \
-        --add-entry="Email" \
-        --add-password="Mot de passe maître" \
-        --add-combo="Server" --combo-values="keepersecurity.eu" \
-        --title='Keeper ssh-agent' \
-        --text=''`
+function keeperLogin() {
+    email=$1
+    password=$2
+    server=$3
 
-    [[ "$?" != "0" ]] && exit 1
-
-    KEEPER_EMAIL=`echo $FORM | cut -d'|' -f1`
-    KEEPER_PW=`echo $FORM | cut -d'|' -f2`
-    KEEPER_SERVER=`echo $FORM | cut -d'|' -f3`
+    if [ -z $email ]; then
+        echo -e "${RED}Error : Email cannot be empty${NC}";
+        return 1;
+    fi
+    if [ -z $password ]; then
+        echo -e "${RED}Error : Password cannot be empty${NC}";
+        return 1;
+    fi
+    if [ -z $server ]; then
+        echo -e "${RED}Error : Server cannot be empty${NC}";
+        return 1;
+    fi
 
     if [ ! -f $CONFIG_FILE ]; then
         expect <<EOD
         set timeout -1
-        spawn keeper login
+        set env(TERM) "dumb"
+        spawn keeper shell
 
-        expect "User(Email): "
-        send "$KEEPER_EMAIL\r"
+        expect "Not logged in> "
+        send "server $server\r"
 
-        expect "Type your selection or <Enter> to resume: "
-        send "email_send\n"
+        expect "Not logged in> "
+        send "login $email\r"
 
         expect {
             "Type your selection or <Enter> to resume: " {
@@ -99,8 +102,8 @@ EOD
     fi
 
     tmp=$(mktemp --suffix=keeper)
-    jq  --arg user "$KEEPER_EMAIL" \
-        --arg pass "$KEEPER_PW" \
+    jq  --arg user "$email" \
+        --arg pass "$password" \
         '.user = $user | .password = $pass' \
         $CONFIG_FILE > "$tmp";
     
@@ -109,9 +112,34 @@ EOD
     storeKeeperConfigFile $CONFIG_FILE
     rm $CONFIG_FILE
 
+    return 0;
+}
+
+# Use zenity to ask user his keeper credentials
+# Then save it into gnome keychain
+function askForPassword() {
+    FORM=`zenity --forms \
+        --add-entry="Email" \
+        --add-password="Mot de passe maître" \
+        --add-combo="Server" --combo-values="EU|US" \
+        --title='Keeper ssh-agent' \
+        --text=''`
+
+    [[ "$?" != "0" ]] && exit 1
+
+    KEEPER_EMAIL=`echo $FORM | cut -d'|' -f1`
+    KEEPER_PW=`echo $FORM | cut -d'|' -f2`
+    KEEPER_SERVER=`echo $FORM | cut -d'|' -f3`
+
+    if ! keeperLogin $KEEPER_EMAIL $KEEPER_PW $KEEPER_SERVER; then
+        askForPassword
+        return;
+    fi
+
     # Check if password is valid
     if ! isLogged; then
         askForPassword
+        return;
     fi
 }
 
@@ -222,7 +250,7 @@ function createSshPublicKeyFilesFromAgent() {
             name="${BASH_REMATCH[1]}";
             echo $row > ~/.ssh/keeper/$name.pub
         else
-            echo -e "${RED}[2/5] Error : public key $row does not respect syntax${NC}";
+            echo -e "${RED}Error : public key $row does not respect syntax${NC}";
         fi
     done
 
@@ -326,8 +354,23 @@ remove-service)
 
     exit 0;
     ;;
+login)
+    if ! keeperLogin $2 $3 $4; then
+        echo -e "${RED}Error : Login flow did not succeed ${NC}";
+        exit 1;
+    fi
+
+    if ! isLogged; then
+        echo -e "${RED}Error : Login flow did not succeed ${NC}";
+        exit 1;
+    fi
+
+    echo -e "${GREEN}Success ! You are now logged into Keeper !${NC}";
+
+    exit 0;
+    ;;
 *)  
-    echo "Not supported, try reading the help with the -h parameter" 
+    echo "Not supported"
     exit 1
     ;;
 esac

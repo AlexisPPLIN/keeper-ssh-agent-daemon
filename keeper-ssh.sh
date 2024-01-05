@@ -18,9 +18,22 @@ CONFIG_FILE=/home/$USER/.keeper/config.json
 
 # ---------------- Helpers functions ----------------
 
+function checkIfDepedenciesAreInstalled() {
+    programs=(keeper screen expect zenity secret-tool)
+    for p in ${programs[@]}; do
+        if ! command -v $p >/dev/null; then
+            echo -e "${RED}Error : Program $p is needed to run this script${NC}";
+            exit 1
+        fi;
+    done
+}
+
 # Checks if keeper ssh-agent socket is opened
 function socketIsOpened() {
     SSH_AGENT=`ls /home/$USER/.keeper/*.ssh_agent`;
+    if [ $? -ne 0 ]; then
+        return 1;
+    fi;
 
     SSH_AUTH_SOCK=$SSH_AGENT ssh-add -q -l 2>/dev/null
     if [ $? -ne 0 ]; then
@@ -223,6 +236,8 @@ function deleteSshPublicKeys() {
 
 # ---------------- Main script ----------------
 
+checkIfDepedenciesAreInstalled
+
 case $1 in
 start)
     echo -e "${YELLOW}[1/5] Checking if current is logged to his vault...${NC}";
@@ -273,10 +288,12 @@ install-service)
     fi
 
     echo -e "${YELLOW}[2/4] Copying keeper-ssh.sh ...${NC}";
+    mkdir -p ~/.local/bin/
     cp keeper-ssh.sh ~/.local/bin/keeper-ssh.sh;
     chmod +x ~/.local/bin/keeper-ssh.sh
 
     echo -e "${YELLOW}[3/4] Copying keeper-ssh.service ...${NC}";
+    mkdir -p ~/.config/systemd/user
     cp keeper-ssh.service ~/.config/systemd/user/keeper-ssh.service;
     chmod +x ~/.config/systemd/user/keeper-ssh.service
 

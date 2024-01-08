@@ -255,6 +255,7 @@ function createSshPublicKeyFilesFromAgent() {
     fi;
 
     mkdir -p ~/.ssh/keeper
+    chmod 700 ~/.ssh/keeper
 
     regex="ssh-.* (.*)"
 
@@ -264,6 +265,7 @@ function createSshPublicKeyFilesFromAgent() {
         then
             name="${BASH_REMATCH[1]}";
             echo $row > ~/.ssh/keeper/$name.pub
+            chmod 600 ~/.ssh/keeper/$name.pub
         else
             echo -e "${RED}Error : public key $row does not respect syntax${NC}";
         fi

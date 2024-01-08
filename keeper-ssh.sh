@@ -20,7 +20,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # ---------------- Helpers functions ----------------
 
 function checkIfDepedenciesAreInstalled() {
-    programs=(keeper screen expect zenity secret-tool)
+    programs=(keeper screen expect zenity secret-tool wget)
     for p in ${programs[@]}; do
         if ! command -v $p >/dev/null; then
             echo -e "${RED}Error : Program $p is needed to run this script${NC}";
@@ -180,6 +180,15 @@ function isLogged() {
     if ! config=`getConfigFile`; then
         return 1
     fi
+
+    # Check server network
+    server=`cat $config | jq -r '.server'`;
+
+    wget -q --spider "https://$server"
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}Error : cannot connect to https://$server${NC}";
+        exit 1;
+    fi;
 
     test=`timeout 10 keeper --config=$config whoami`
     if [ $? -ne 0 ]; then

@@ -25,10 +25,10 @@ See : https://github.com/Keeper-Security/Commander/issues/965
 
 ## Compatibility chart
 
-| OS  | Commander 16.9.X | Commander 16.10.X |
-| ------------- | ------------- | ------------- |
-| Fedora 39 (GNOME) | ✅ | 🟧 |
-| Fedora 40 (GNOME) | ✅ | 🟧 |
+| OS  | Commander 16.X |
+| ------------- | ------------- |
+| Fedora 39 (GNOME) | ✅ |
+| Fedora 40 (GNOME) | ✅ |
 
 - ✅ : Working and fully tested.
 - 🟧 : Working but not fully tested.

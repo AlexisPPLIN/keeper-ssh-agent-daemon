@@ -7,7 +7,7 @@
 This repository is a workaround of Keeper Commander CLI limitation with his implementation of `ssh-agent`.  
 See : https://github.com/Keeper-Security/Commander/issues/965
 
-# Features
+## Features
 
 - Runs `keeper ssh-client` as a background service using `screen`.
 - Handles login flow with `zenity`.
@@ -15,18 +15,24 @@ See : https://github.com/Keeper-Security/Commander/issues/965
 - Auto extract public keys files (in `~/.ssh/keeper/`) for each ssh private keys in your Keeper Vault.
 - Stores keeper config file into Gnome Keyring (libsecret).
 
-
-
-# Requirements
+## Requirements
 
 - Keeper Commander CLI : [How to install](https://docs.keeper.io/secrets-manager/commander-cli/commander-installation-setup/installation-on-linux)
 - screen (GNU) : [How to install](https://command-not-found.com/screen)
 - expect (sgolovan@debian.org) : [How to install](https://command-not-found.com/expect)
 - Gnome Keyring / libsecret : Should already be installed on your distro
 
-# Tested on
+## Compatibility chart
 
-- Fedora 39 (GNOME)
+| OS  | Commander 16.9.X | Commander 16.10.X |
+| ------------- | ------------- | ------------- |
+| Fedora 39 (GNOME) | ✅ | 🟧 |
+| Fedora 40 (GNOME) | ✅ | 🟧 |
+
+- ✅ : Working and fully tested.
+- 🟧 : Working but not fully tested.
+- ❔ : Not tested.
+- ❌ : Tested and does not work.
 
 # How to install
 

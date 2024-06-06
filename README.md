@@ -18,6 +18,7 @@ See : https://github.com/Keeper-Security/Commander/issues/965
 ## Requirements
 
 - Keeper Commander CLI : [How to install](https://docs.keeper.io/secrets-manager/commander-cli/commander-installation-setup/installation-on-linux)
+- bash (GNU) : [How to install](https://command-not-found.com/bash)
 - screen (GNU) : [How to install](https://command-not-found.com/screen)
 - expect (sgolovan@debian.org) : [How to install](https://command-not-found.com/expect)
 - Gnome Keyring / libsecret : Should already be installed on your distro

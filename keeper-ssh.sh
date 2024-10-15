@@ -60,9 +60,9 @@ TIME
 }
 
 function keeperLogin() {
-    email=$1
-    password=$2
-    server=$3
+    email="$1"
+    password="$2"
+    server="$3"
 
     if [ -z $email ]; then
         echo -e "${RED}Error : Email cannot be empty${NC}";
@@ -372,7 +372,7 @@ remove-service)
     exit 0;
     ;;
 login)
-    if ! keeperLogin $2 $3 $4; then
+    if ! keeperLogin "$2" "$3" "$4"; then
         echo -e "${RED}Error : Login flow did not succeed ${NC}";
         exit 1;
     fi

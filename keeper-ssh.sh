@@ -64,15 +64,15 @@ function keeperLogin() {
     password="$2"
     server="$3"
 
-    if [ -z $email ]; then
+    if [ -z "$email" ]; then
         echo -e "${RED}Error : Email cannot be empty${NC}";
         return 1;
     fi
-    if [ -z $password ]; then
+    if [ -z "$password" ]; then
         echo -e "${RED}Error : Password cannot be empty${NC}";
         return 1;
     fi
-    if [ -z $server ]; then
+    if [ -z "$server" ]; then
         echo -e "${RED}Error : Server cannot be empty${NC}";
         return 1;
     fi

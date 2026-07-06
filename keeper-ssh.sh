@@ -14,13 +14,12 @@ YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-CONFIG_FILE=/home/$USER/.keeper/config.json
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # ---------------- Helpers functions ----------------
 
 function checkIfDepedenciesAreInstalled() {
-    programs=(keeper screen expect zenity secret-tool wget)
+    programs=(keeper screen zenity)
     for p in ${programs[@]}; do
         if ! command -v $p >/dev/null; then
             echo -e "${RED}Error : Program $p is needed to run this script${NC}";
@@ -47,7 +46,7 @@ function socketIsOpened() {
 # Waits for keeper ssh-agent socket to open (or fail if timeout is exceded)
 function waitForSocketToOpenOrFail() {
     export -f socketIsOpened
-    timeout 10 bash <<TIME
+    timeout 15 bash <<TIME
         while ! socketIsOpened; do
             sleep 0.1;
         done
@@ -64,6 +63,11 @@ function keeperLogin() {
     password="$2"
     server="$3"
 
+    if isLogged; then
+        echo -e "${GREEN}Already logged !${NC}";
+        return 0;
+    fi
+
     if [ -z "$email" ]; then
         echo -e "${RED}Error : Email cannot be empty${NC}";
         return 1;
@@ -77,41 +81,14 @@ function keeperLogin() {
         return 1;
     fi
 
-    if [ ! -f $CONFIG_FILE ]; then
-        expect <<EOD
-        set timeout -1
-        set env(TERM) "dumb"
-        spawn keeper shell
+    keeper login \
+        --new-login \
+        --server $server \
+        --pass $password \
+        $email
 
-        expect "Not logged in> "
-        send "server $server\r"
-
-        expect "Not logged in> "
-        send "login $email\r"
-
-        expect {
-            "Type your selection or <Enter> to resume: " {
-                send "\r"
-                sleep 1
-                exp_continue
-            }
-            "Password: " {
-                send "\n"
-            }
-        }
-EOD
-    fi
-
-    tmp=$(mktemp --suffix=keeper)
-    jq  --arg user "$email" \
-        --arg pass "$password" \
-        '.user = $user | .password = $pass' \
-        $CONFIG_FILE > "$tmp";
-    
-    mv "$tmp" $CONFIG_FILE;
-
-    storeKeeperConfigFile $CONFIG_FILE
-    rm $CONFIG_FILE
+    keeper this-device persistent-login on
+    keeper this-device register
 
     return 0;
 }
@@ -144,65 +121,15 @@ function askForPassword() {
     fi
 }
 
-# Store keeper config file into Gnome Keyring
-function storeKeeperConfigFile() {
-    if [ ! -f $1 ]; then
-        return 1
-    fi
-
-    content=`cat $1`;
-    content=`echo $content | tr -d '\n'`
-
-    if [ -z "$content" ]; then
-        return 1
-    fi
-
-    json=`echo $content | jq -c`
-    echo $json | secret-tool store -l 'keeper' config keeper
-}
-
-# Retrieve keeper config file from Gnome Keyring as a temporary file
-function getConfigFile() {
-    unparsed_json=`secret-tool lookup config keeper`
-    if [ $? -ne 0 ]; then
-        return 1;
-    fi;
-
-    file=$(mktemp --suffix=keeper)
-    echo $unparsed_json | jq > $file
-
-    echo $file
-    return 0
-}
-
 # Checks if user is logged to Keeper
 function isLogged() {
-    if ! config=`getConfigFile`; then
+    test=`timeout 10 keeper login-status`
+
+    if echo $test | grep "Not logged in"; then
         return 1
     fi
 
-    # Check server network
-    server=`cat $config | jq -r '.server'`;
-
-    wget -q --spider "https://$server"
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}Error : cannot connect to https://$server${NC}";
-        exit 1;
-    fi;
-
-    test=`timeout 10 keeper --config=$config whoami`
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}Error : whoami failed${NC}";
-        exit 1;
-    fi;
-
-    rm $config;
-
-    if echo $test | grep "User:"; then
-        return 0
-    fi
-
-    return 1
+    return 0;
 }
 
 # Checks if screen of Keeper ssh-agent is started
@@ -291,11 +218,9 @@ start)
         askForPassword
     fi
 
-    config=`getConfigFile`;
-
     echo -e "${YELLOW}[2/5] Checking if ssh-agent is not already running...${NC}";
     if ! isScreenStarted; then
-        screen -dm -S keeper-ssh keeper --config=$config ssh-agent start
+        screen -dm -S keeper-ssh keeper ssh-agent start
     fi
 
     echo -e "${YELLOW}[3/5] Waiting for ssh-agent socket to open...${NC}";
@@ -309,7 +234,6 @@ start)
 
     echo -e "${GREEN}Success ! Keeper ssh-agent is up and running !${NC}";
 
-    rm $config;
 
     exit 0
     ;;
@@ -383,6 +307,16 @@ login)
     fi
 
     echo -e "${GREEN}Success ! You are now logged into Keeper !${NC}";
+
+    exit 0;
+    ;;
+is-logged)
+    if ! isLogged; then
+        echo -e "${RED}Error : User is not logged ${NC}";
+        exit 1;
+    fi
+
+    echo -e "${GREEN}Success ! User is logged into keeper !${NC}";
 
     exit 0;
     ;;

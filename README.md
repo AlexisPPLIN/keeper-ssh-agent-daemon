@@ -21,6 +21,11 @@ See [Keeper-Security/Commander#965](https://github.com/Keeper-Security/Commander
 - [screen](https://command-not-found.com/screen)
 - [zenity](https://command-not-found.com/zenity)
 
+## 🔒 Security
+ 
+- 🚫 This script never interacts with your SSH keys themselves (feel free to read the code if you have any doubt).
+- 🔐 Your Keeper credentials are handled by Keeper Commander and stored in your OS's secure wallet — see [Persistent Login Sessions](https://docs.keeper.io/keeperpam/commander-cli/commander-installation-setup/logging-in#persistent-login-sessions-stay-logged-in).
+
 ## 📊 Compatibility chart
 
 | Version | Compatibility |

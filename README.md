@@ -9,7 +9,7 @@ See [Keeper-Security/Commander#965](https://github.com/Keeper-Security/Commander
 
 ## ✨ Features
 
-- 🖥️ Runs `keeper ssh-client` as a background service using `screen`.
+- 🖥️ Runs `keeper ssh-agent` as a background service using `screen`.
 - 🔑 Handles the login flow with `zenity`.
 - 🔗 Automatically registers `SSH_AUTH_SOCK` in `~/.bashrc` so ssh-agent is available in every program.
 - 📤 Automatically extracts a public key file (in `~/.ssh/keeper/`) for each SSH private key in your Keeper Vault.

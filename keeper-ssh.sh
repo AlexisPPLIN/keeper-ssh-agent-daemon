@@ -35,27 +35,37 @@ function socketIsOpened() {
         return 1;
     fi;
 
-    SSH_AUTH_SOCK=$SSH_AGENT ssh-add -l 2>/dev/null
+    SSH_AUTH_SOCK=$SSH_AGENT ssh-add -l >/dev/null
     if [ $? -ne 0 ]; then
         return 1;
     fi;
 
-    return 0;
+    return 1;
 }
 
 # Waits for keeper ssh-agent socket to open (or fail if timeout is exceded)
 function waitForSocketToOpenOrFail() {
-    export -f socketIsOpened
-    timeout 15 bash <<TIME
+    (
+        max=25
+        SECONDS=0
         while ! socketIsOpened; do
-            sleep 0.1;
+            elapsed=$SECONDS
+            (( elapsed >= max )) && exit 1
+            pourcentage=$(( elapsed * 100 / max ))
+            echo "$pourcentage"
+            echo "# ${elapsed}s / ${max}s"
+            sleep 1
         done
-TIME
+        echo "100"
+    ) | zenity --progress --auto-close --percentage=0 --no-cancel \
+        --title="Keeper : waiting for ssh-agent to start" 
+    
+    resultat_boucle=${PIPESTATUS[0]}
+    resultat_zenity=${PIPESTATUS[1]}
 
-    if [ $? -ne 0 ]; then
-        echo "Timeout of ssh-agent socket"
-        exit 1;
-    fi;
+    if [[ $resultat_boucle -ne 0 ]]; then
+        exit 1
+    fi
 }
 
 function keeperLogin() {
@@ -81,11 +91,11 @@ function keeperLogin() {
         return 1;
     fi
 
-    keeper login \
+    ( keeper login \
         --new-login \
         --server $server \
         --pass $password \
-        $email
+        $email ) | zenity --progress --pulsate --auto-kill --auto-close --no-cancel --title="Keeper SSH" --text="Logging in..."
 
     keeper this-device persistent-login on
     keeper this-device register

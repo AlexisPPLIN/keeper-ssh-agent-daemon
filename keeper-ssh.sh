@@ -46,7 +46,7 @@ function socketIsOpened() {
 # Waits for keeper ssh-agent socket to open (or fail if timeout is exceded)
 function waitForSocketToOpenOrFail() {
     (
-        max=25
+        max=60
         SECONDS=0
         while ! socketIsOpened; do
             elapsed=$SECONDS
@@ -224,9 +224,9 @@ case $1 in
 start)
     echo -e "${YELLOW}[1/5] Checking if current is logged to his vault...${NC}";
 
-    if ! isLogged; then
+    ( if ! isLogged; then
         askForPassword
-    fi
+    fi ) | zenity --progress --pulsate --auto-kill --auto-close --no-cancel --title="Keeper SSH" --text="Checking if user is already logged on..."
 
     echo -e "${YELLOW}[2/5] Checking if ssh-agent is not already running...${NC}";
     if ! isScreenStarted; then

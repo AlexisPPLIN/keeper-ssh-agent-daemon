@@ -18,14 +18,27 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # ---------------- Helpers functions ----------------
 
+function version_greater_equal()
+{
+    printf '%s\n%s\n' "$2" "$1" | sort --check=quiet --version-sort
+}
+
 function checkIfDepedenciesAreInstalled() {
-    programs=(keeper screen zenity)
+    programs=(keeper tmux zenity)
     for p in ${programs[@]}; do
         if ! command -v $p >/dev/null; then
             echo -e "${RED}Error : Program $p is needed to run this script${NC}";
             exit 1
         fi;
     done
+
+    minimal_keeper_version=18.0.0
+
+    keeper_version=$(pip3 list --no-index --format=json | jq -r '.[] | select(.name=="keepercommander").version')
+    if ! version_greater_equal $keeper_version $minimal_keeper_version; then
+        echo -e "${RED}Error : Keeper commander version should be $minimal_keeper_version or above (actual : $keeper_version)${NC}";
+        exit 1;
+    fi
 }
 
 # Checks if keeper ssh-agent socket is opened
@@ -143,8 +156,8 @@ function isLogged() {
 }
 
 # Checks if screen of Keeper ssh-agent is started
-function isScreenStarted() {
-    if screen -list | grep -q "keeper-ssh"; then
+function isBackgroundAgentStarted() {
+    if /usr/bin/tmux has-session -t keeper-ssh; then
         return 0
     fi
 
@@ -229,8 +242,9 @@ start)
     fi ) | zenity --progress --pulsate --auto-kill --auto-close --no-cancel --title="Keeper SSH" --text="Checking if user is already logged on..."
 
     echo -e "${YELLOW}[2/5] Checking if ssh-agent is not already running...${NC}";
-    if ! isScreenStarted; then
-        screen -dm -S keeper-ssh keeper ssh-agent start
+    if ! isBackgroundAgentStarted; then
+        /usr/bin/tmux new -d -s keeper-ssh keeper ssh-agent start
+        /usr/bin/tmux display-message -p -t keeper-ssh '#{pid}' > $XDG_RUNTIME_DIR/keeper-ssh.pid
     fi
 
     echo -e "${YELLOW}[3/5] Waiting for ssh-agent socket to open...${NC}";
@@ -244,12 +258,12 @@ start)
 
     echo -e "${GREEN}Success ! Keeper ssh-agent is up and running !${NC}";
 
-
     exit 0
     ;;
 stop)
     echo -e "${YELLOW}[1/3] Shutting down ssh-agent...${NC}";
-    screen -X -S keeper-ssh quit
+    /usr/bin/tmux kill-ses -t keeper-ssh
+    rm $XDG_RUNTIME_DIR/keeper-ssh.pid
 
     echo -e "${YELLOW}[2/3] Removing SSH_AUTH_SOCK from bashrc...${NC}";
     removeSshAgentSocketToBashrc

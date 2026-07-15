@@ -9,7 +9,7 @@ See [Keeper-Security/Commander#965](https://github.com/Keeper-Security/Commander
 
 ## ✨ Features
 
-- 🖥️ Runs `keeper ssh-agent` as a background service using `screen`.
+- 🖥️ Runs `keeper ssh-agent` as a background service using `tmux`.
 - 🔑 Handles the login flow with `zenity`.
 - 🔗 Automatically registers `SSH_AUTH_SOCK` in `~/.bashrc` so ssh-agent is available in every program.
 - 📤 Automatically extracts a public key file (in `~/.ssh/keeper/`) for each SSH private key in your Keeper Vault.
@@ -18,7 +18,7 @@ See [Keeper-Security/Commander#965](https://github.com/Keeper-Security/Commander
 
 - [Keeper Commander CLI](https://docs.keeper.io/keeperpam/commander-cli/commander-installation-setup)
 - [bash](https://command-not-found.com/bash)
-- [screen](https://command-not-found.com/screen)
+- [tmux](https://command-not-found.com/tmux)
 - [zenity](https://command-not-found.com/zenity)
 
 ## 🔒 Security

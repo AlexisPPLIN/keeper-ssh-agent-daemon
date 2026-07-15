@@ -40,7 +40,7 @@ function socketIsOpened() {
         return 1;
     fi;
 
-    return 1;
+    return 0;
 }
 
 # Waits for keeper ssh-agent socket to open (or fail if timeout is exceded)
